@@ -1,0 +1,16 @@
+models:
+  - name: cnt_fecha_incremental
+    description: ""
+    columns:
+      - name: Fech_mes
+        description: Fecha de la foto
+        data_type: decimal
+      - name: esquema
+        description: Esquema de origen
+        data_type: varchar
+      - name: tabla
+        description: Nombre de la tabla
+        data_type: varchar
+      - name: ingestDate
+        description: Fecha de ingesta en AQ360
+        data_type: datetime

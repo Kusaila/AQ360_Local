@@ -1,0 +1,92 @@
+version: 2
+sources:
+  - name: aq360_silver
+    database: sqld-aq-360-360-pre-01
+    schema: aq360_silver
+    tables:
+      - name: slv_dim_fecha
+models:
+  - name: dim_estructura_geografica_act
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sk_poblacion
+  - name: dim_estructura_geografica
+    columns:
+      - name: sk_poblacion
+        tests:
+          - not_null
+  - name: dim_periodo.sql
+  - name: dim_estructura_societaria_act
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sk_empresa
+  - name: dim_estructura_organizativa_act
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sk_explotacion
+  - name: fact_facturacion
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - periodo
+            - sk_explotacion
+            - sk_poblacion
+            - sk_empresa
+            - fech_mes
+            - Fech_Fact
+            - id_tipo_calculo
+            - id_perimetro
+            - id_alta_baja
+    description: >-
+      Tabla de hechos de facturacion de AQ360.
+
+
+      Granularidad por mes, periodo, poblacion, explotacion y marcas de: canon, perimetro, alta y baja
+
+
+      Incremental, calculo mensual.
+    columns:
+      - name: periodo
+        description: ""
+        data_type: int
+      - name: sk_explotacion
+        description: ""
+        data_type: bigint
+      - name: sk_poblacion
+        description: ""
+        data_type: bigint
+      - name: fech_mes
+        description: ""
+        data_type: int
+      - name: id_canon
+        description: ""
+        data_type: int
+      - name: flag_perimetro
+        description: ""
+        data_type: int
+      - name: id_baja_alta
+        description: ""
+        data_type: int
+      - name: importe_facturado
+        description: ""
+        data_type: decimal
+      - name: vol_fact
+        description: ""
+        data_type: bigint
+      - name: Dias_fact
+        description: ""
+        data_type: decimal
+  - name: slv_facturas_manual_inicial
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - cd_explotacion
+            - cd_empresa
+            - cd_poblacion
+            - Fech_mes
+            - CdPeriodo
+            - id_canon
+            - flag_perimetro

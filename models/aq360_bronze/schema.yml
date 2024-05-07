@@ -1,0 +1,42 @@
+version: 2
+
+sources:
+  - name: aq360_bronze
+    database: sqld-aq-360-360-pre-01
+    schema: aq360_bronze
+    tables:
+      - name: stg_dim_geographic_entity
+      - name: stg_dw_t_eqGeografica
+      - name: stg_dim_org_structure
+      - name: stg_dim_org_structure_desc
+      - name: stg_dw_t_mTipoCliente      
+      - name: stg_dw_t_eqoperativa
+      - name: stg_dw_t_eqJuridica
+      - name: stg_dw_t_mgeografica
+      - name: stg_gcrep_company
+      - name: stg_gcrep_company_explo_relation
+      - name: stg_dw_t_mEmpresas_Evol
+      - name: stg_dw_t_mEmpresas
+      - name: stg_tFacturas2
+        columns:
+        - name: nid
+          tests:
+            - unique
+            - not_null
+        materialization: table
+      - name: stg_dw_t_md_det_agrup_tip_cli
+      - name: stg_dw_t_md_mae_agrup_tip_cli
+      - name: stg_dw_t_md_servicios
+      - name: stg_dw_t_md_conceptos
+      - name: stg_tPeriodo
+      - name: stg_tFacServConcep
+      - name: stg_tExploMan_FactServConc_GrupSeg
+      - name: stg_tExploMan_Datos_Basicos
+      - name: glosario_aq360
+      - name: stg_DIM_GEO_EXPLO
+      - name: stg_DIM_EXPLO_MANUAL_TIP_PER
+
+      
+  
+
+       

@@ -1,0 +1,256 @@
+version: 2
+models:
+  - name: slv_dim_estructura_geografica
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sk_poblacion
+    description: Foto vigente de la estructura jerarquica geografica en DW de
+      Clientes de Aqualia. Se construye con la misma lógica de la vista del DW,
+      pero cruzando con dw_t_eqGeografica para recuperar el CdPoblación. Se
+      tomará esta tabla de la capa silver para generar la dimension
+      historificada dim_estructura_geografica_hist en silver.
+    columns:
+      - name: sk_poblacion
+        description: Código de poblacion CdPoblacion
+        data_type: bigint
+      - name: des_pais
+        description: Descripción de Pais
+        data_type: nvarchar
+      - name: des_ccaa
+        description: Descripción de Comunidad Autonoma
+        data_type: nvarchar
+      - name: des_provincia
+        description: Descripción de Provincia
+        data_type: nvarchar
+      - name: des_municipio
+        description: Descripción de Municipio
+        data_type: nvarchar
+      - name: des_pedania
+        description: Descripción de Pedania
+        data_type: nvarchar
+      - name: des_poblacion
+        description: Descripción de Poblacion
+        data_type: nvarchar
+  - name: slv_dim_estructura_organizativa_hist
+    description: Foto vigente de la dimension de estructura organizativa. Se
+      contruye con la misma consulta que la vista usada en el DW de Clientes.
+      Esta tabla es la tabla de origen para generar la dimension historica de
+      AQ360. Para cada explotación se informan todos los niveles superiores de
+      la jerarquia en el mismo registro
+    columns:
+      - name: sk_explotacion
+        description: Código de negocio de explotacion
+        data_type: decimal
+      - name: des_ambito
+        description: Decriptivo de ambito
+        data_type: varchar
+      - name: des_zona
+        description: Descriptivo de zona
+        data_type: nvarchar
+      - name: des_delegacion
+        description: Descriptivo de delegacion
+        data_type: nvarchar
+      - name: des_ugestion
+        description: Descriptivo de unidad de gestión
+        data_type: nvarchar
+      - name: des_contrata
+        description: Descriptivo de contrata
+        data_type: nvarchar
+      - name: des_explotacion
+        description: Descriptivo de la explotacion
+        data_type: nvarchar
+  - name: slv_dim_periodo
+    description: Dimension periodo
+    columns:
+      - name: CdPeriodo
+        description: Codigo de periodo
+        data_type: int
+      - name: CdTipPeriodo
+        description: Codigo tipo periodo
+        data_type: smallint
+      - name: DsTipPeriodo
+        description: Descriptivo del tipo de periodo
+        data_type: varchar
+      - name: Anno
+        description: Annio del periodo
+        data_type: smallint
+      - name: NumDias
+        description: Numero de dias del periodo
+        data_type: smallint
+      - name: Periodo
+        description: Periodo en formato varchar
+        data_type: varchar
+      - name: sAnno
+        description: Annio en formato varchar
+        data_type: varchar
+      - name: ingestDate
+        description: Fecha de ingesta en AQ360
+        data_type: datetime
+  - name: slv_dw_v_Estructura_Geografica
+  - name: slv_dw_v_Estructura_Societaria
+  - name: slv_dim_tipocliente
+  - name: slv_fact_facturacion_ini
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sk_poblacion
+            - sk_explotacion
+            - sk_empresa
+            - id_perimetro
+            - id_alta_baja
+            - id_canon
+            - Fech_mes
+            - Peri_fact
+  - name: slv_dim_concepto_servicio
+    description: Combinacion de conceptos facturables y servicios en el DW de
+      Clientes de Aqualia. Se calcula el flag canon para marcar todos aquellos
+      servicios que son canon.
+    columns:
+      - name: cod_inst
+        description: Código de la instalacion
+        data_type: smallint
+      - name: cod_ctta
+        description: Código de la contrata
+        data_type: smallint
+      - name: cod_concep
+        description: Código de Concepto
+        data_type: int
+      - name: des_concep
+        description: Descripcion del concepto
+        data_type: char
+      - name: cod_ser
+        description: Codigo de servicio
+        data_type: smallint
+      - name: des_ser
+        description: Descripcion del servicio
+        data_type: char
+      - name: flag_canon
+        description: Marca de canon, 1 servicio canon, 0 no canon
+        data_type: int
+      - name: Create_Date
+        description: Fecha de creacion del registro en DW
+        data_type: datetime
+      - name: Update_Date
+        description: Fecha de actualizacion del registro en DW
+        data_type: datetime
+  - name: slv_dim_estructura_societaria
+    description: Foto vigente de la dimension de estructura societaria. Se contruye
+      con la misma consulta que la vista usada en el DW de Clientes y además se
+      cruza con la foto vigente del maestro de empresas descargado desde origen
+      a la capa bronze (stg_dw_t_mEmpresas_Evol). En funcion del Cdtipo se
+      define si la empresa es propia o ajena.
+    columns:
+      - name: sk_empresa
+        description: Codigo de negocio de la empresa
+        data_type: decimal
+      - name: cif
+        description: CIF de la empresa
+        data_type: nvarchar
+      - name: TipoEmpresa
+        description: Tipo de empresa, propia o ajena
+        data_type: varchar
+      - name: nombre_empresa
+        description: Nombre de la empresa
+        data_type: nvarchar
+  - name: slv_facturas_vol_dias_ajustes
+    description: Este modelo se encarga de sacar todos aquellos ajustes (misma
+      clave, volumen en negativo y positvo que se anulan al agrupar) que pueden
+      desvirtuar el calculo de dias por m3 usado en el cuadro de mando de
+      PowerBI
+    columns: []
+  - name: slv_facturas_vol_dias
+    description: Tabla intermedia de facturacion en la que recuperamos la clave de
+      negocio de empresa mediante un cruce con la tabla de equivalencias
+      juridicas entrando por  nCod_inst, .nCod_expl .nCod_pobl, .nCod_emi y
+      recuperamos el flag de agua en alta o baja de la tabla de tipo de cliente
+    columns:
+      - name: sk_empresa
+        description: Clave de negocio de empresa
+        data_type: bigint
+      - name: CdPoblacion
+        description: Clave de negocio de Poblacion
+        data_type: bigint
+      - name: CdExplotacion
+        description: Clave de negocio de Explotacion
+        data_type: int
+      - name: id_perimetro
+        description: Flag de perimetro contante/variable
+        data_type: int
+      - name: id_alta_baja
+        description: Flag de agua en alta o baja
+        data_type: int
+      - name: Fech_mes
+        description: Fecha de foto
+        data_type: int
+      - name: Peri_fact
+        description: Periodod facturado
+        data_type: int
+      - name: Num_Dias_Lect
+        description: Numero de dias suministrados
+        data_type: bigint
+      - name: M3_fact
+        description: Metros cúbicos facturados
+        data_type: bigint
+      - name: Fech_Fact
+        description: Fecha de facturacion
+        data_type: datetime
+  - name: slv_facturas_manual
+    description: Tabla incremental con la información manual de facturacion y
+      consumos en el mismo fpormato que la tabla slv_fact_facturacion.
+    columns:
+      - name: cd_explotacion
+        description: Código de negocio de la explotacion
+        data_type: int
+      - name: cd_poblacion
+        description: Código de negocio de la poblacion
+        data_type: bigint
+      - name: cd_empresa
+        description: Código de negocio de la empresa
+        data_type: int
+      - name: id_perimetro
+        description: Flag perimetro contsante/variable
+        data_type: int
+      - name: id_canon
+        description: Flag importe asignado a canon o concepto propio
+        data_type: int
+      - name: id_tipo_calculo
+        description: Flag tipo de calculo, proporcional, consolidado o 100%
+        data_type: int
+      - name: id_alta_baja
+        description: Flag de agua en alta o baja domestica/no domestica
+        data_type: int
+      - name: Fech_mes
+        description: Fecha de foto
+        data_type: int
+      - name: Peri_fact
+        description: Periodo facturacion
+        data_type: int
+      - name: m3_fact
+        description: Volumen facturado
+        data_type: float
+      - name: dias_x_m3
+        description: Producto dias suministrados x m3 facturado
+        data_type: float
+      - name: Importe
+        description: Importe facturado en euros
+        data_type: float
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - cd_poblacion
+            - cd_explotacion
+            - cd_empresa
+            - id_perimetro
+            - id_alta_baja
+            - id_tipo_calculo
+            - id_canon
+            - Fech_mes
+            - Peri_fact
+
+sources:
+  - name: aq360_silver
+    database: sqld-aq-360-360-pre-01
+    schema: aq360_silver
+    tables:
+      - name: slv_dim_Fecha
