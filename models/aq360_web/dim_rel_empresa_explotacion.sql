@@ -7,4 +7,4 @@
     )
 }}
 
-select * from {{ source('aq360_silver', 'dim_rel_empresa_explotacion_fin') }}
+select * from {{ source('aq360_silver', 'dim_rel_empresa_explotacion') }}
