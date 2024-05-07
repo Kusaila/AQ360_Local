@@ -56,7 +56,11 @@ models:
 seeds:
   schema: aq360_bronze
   delimiter: ;
-  
+
+tests:
+  AQ360_Local:
+    +as_columnstore: False
+
 
 vars:
     "dbt_date:time_zone": Europe/Madrid
