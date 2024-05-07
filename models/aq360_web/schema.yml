@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: dim_rel_empresa_explotacion_fin
+  - name: dim_rel_empresa_explotacion
 sources:
   - name: aq360_silver
     database: sqld-aq-360-360-pre-01
