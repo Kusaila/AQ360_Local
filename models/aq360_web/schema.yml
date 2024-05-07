@@ -6,5 +6,5 @@ sources:
     database: sqld-aq-360-360-pre-01
     schema: aq360_silver
     tables: 
-      - name: dim_rel_empresa_explotacion
+      - name: dim_rel_empresa_explotacion_fin
       
